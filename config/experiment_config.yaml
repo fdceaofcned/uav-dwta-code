@@ -1,0 +1,106 @@
+# Experimental configuration of the paper (Section 6.1.1 and Tables B.1 to B.4).
+# Units are given in the key names or in the comments.
+
+software_environment:
+  python: "3.12.13"
+  pytorch: "2.8.0 (CUDA 12.6)"
+  numpy: "2.1.2"
+  operating_system: "Ubuntu 22.04"
+
+hardware:
+  cpu: "Intel Xeon w5-2465X (16 cores, 32 threads, 3.1 GHz base, 4.7 GHz maximum turbo)"
+  gpu: "NVIDIA RTX 2000 Ada Generation, 16 GB memory"
+  ram_gb: 64
+
+scenario:                                  # Section 6.1.1
+  airspace_km: [60, 60]
+  formation_sizes: [4, 6, 8]
+  static_sites_distance_to_target_km: 10
+  mobile_sites_patrol_radius_km: 5
+  mobile_sites_standoff_distance_km: 40
+  mobile_sites_initial_position: "randomly distributed along the patrol routes"
+  simulation_time_step_s: 0.5              # 0.1 s and 0.2 s for the time-driven baselines with Ts = 0.1 s and 0.2 s (Section 6.4.2)
+
+laser_weapon:                              # Table B.1
+  aiming_error_arcsec: 1.0                # used as the beam-jitter angle for a_j in Eq. (A6)
+  wavelength_um: 1.06
+  output_power_kw: 50
+  optical_compensation_coefficient: 0.5
+  launcher_diameter_m: 0.5
+  initial_battery_capacity_mj: 54
+  single_dwell_reference_energy_density_kj_per_cm2: 15
+  single_shot_kill_probability: 0.5
+  kill_probability_threshold: 0.75
+
+uav:                                       # Table B.2
+  flight_altitude_km: 5
+  formation_spacing_km: 2
+  flight_speed_m_per_s: 100
+
+electro_optical_sensor:                    # Table B.2
+  imaging_sensor_width_x_height_mm: [6.25, 4.68]
+  resolution_vertical_x_horizontal: [4096, 2160]
+  focal_length_mm: [50, 400]
+  n_cyc_50_detection_recognition_identification: [0.75, 3.0, 6.0]
+
+radar:                                     # Table B.3
+  antenna_gain_db: 36
+  wavelength_m: 0.03
+  receiver_bandwidth_hz: 1.0e10
+  reference_window_samples: 16
+
+atmosphere:                                # Table B.3
+  boltzmann_constant_j_per_k: 1.38e-23
+  standard_temperature_k: 290
+  wind_level: 4
+  wind_speed_m_per_s: 21
+  visibility_km: 10
+  specific_heat_capacity_of_air_j_per_kg_k: 1005
+  aerosol_type_constant: 4.543
+
+training:                                  # Table B.4
+  max_training_episodes: 30000
+  batch_size: 32
+  mini_batch_size: 8
+  training_seeds: [0, 1, 2]
+  evaluation_episodes_per_trained_policy: 200
+  initial_learning_rate: 5.0e-4
+  lr_schedule: "linear decay to 0 over 30,000 episodes"
+  gradient_clipping: "global L2-norm clipping at 10.0"
+
+initialization:                            # Table B.4
+  hidden_linear_layer_gain: 2
+  actor_output_gain: 0.01
+  critic_value_head_gain: 1.0
+  bias_initialization: 0
+  layernorm_initialization: "PyTorch default"
+
+actor_architecture:                        # Table B.4
+  hidden_layers: 3
+  hidden_width: 64
+  activation: "ReLU"
+
+critic_architecture:                       # Table B.4, EnAC
+  token_embedding_dim: 64
+  attention_heads: 4
+  attention_layers: 2
+  input_dimension: "86 x N"
+  value_head_output_dimension: 1
+
+reward_coefficients:                       # Table B.4
+  lambda_1: 0.2
+  lambda_2: 2
+  lambda_3: 1
+  lambda_4: 30
+  c_step: 0.2
+  c_succ: 50
+  c_fail: 50
+
+ppo:                                       # Table B.4
+  clip_ratio: 0.2
+  discount_factor_gamma: 0.99
+  gae_lambda: 0.95
+  optimization_epochs_per_update: 10
+  advantage_normalization: "calculated per update batch"
+  entropy_coefficient: "0.01 to 0.004"
+  entropy_annealing_horizon: "first 90% of training episodes"
