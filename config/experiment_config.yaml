@@ -63,13 +63,14 @@ training:                                  # Table B.4
   batch_size: 32
   mini_batch_size: 8
   training_seeds: [0, 1, 2]
-  evaluation_episodes_per_trained_policy: 200
+  evaluation_seeds: [3, 4, 5, 6, 7]
+  evaluation_episodes_per_seed: 200
   initial_learning_rate: 5.0e-4
   lr_schedule: "linear decay to 0 over 30,000 episodes"
   gradient_clipping: "global L2-norm clipping at 10.0"
 
 initialization:                            # Table B.4
-  hidden_linear_layer_gain: 2
+  hidden_linear_layer_gain: 1.4142135623730951  # sqrt(2)
   actor_output_gain: 0.01
   critic_value_head_gain: 1.0
   bias_initialization: 0
